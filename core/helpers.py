@@ -1,4 +1,4 @@
-import requests
+import requests, json
 
 _PAYUDATA = {
     "pos_id": 388753,
@@ -9,6 +9,7 @@ _PAYUDATA = {
 
 
 class PayUHelper:
+
     snd = 'https://secure.snd.payu.com'
     prod= 'https://secure.payu.com'
     in_sandbox = 'snd'
@@ -24,21 +25,31 @@ class PayUHelper:
             resp = requests.post(host+'/pl/standard/user/oauth/authorize',data)
             PayUHelper._access_token = resp.json()['access_token']
 
-    def _rest_json_call(self, fnc, data):
+    def _rest_json_post(self, fnc, data):
         self.get_auth()
         host = PayUHelper.snd if PayUHelper.in_sandbox else PayUHelper.prod
         headers = {
-            # 'Content-Type':'application/json',
+            'Content-Type':'application/json',
             'Authorization':'Bearer {}'.format(PayUHelper._access_token)
         }
-        return requests.post(host+fnc,json=data,headers=headers)
+        return requests.post(host+fnc,json=data,headers=headers, allow_redirects=False)
 
-    def newOrder(self, order_id, buyer, items, description):
+    def _rest_json_get(self, fnc):
+        self.get_auth()
+        host = PayUHelper.snd if PayUHelper.in_sandbox else PayUHelper.prod
+        headers = {
+            'Content-Type':'application/json',
+            'Authorization':'Bearer {}'.format(PayUHelper._access_token)
+        }
+        return requests.get(host+fnc,headers=headers, allow_redirects=False)
+
+    def newOrder(self, internal_id, buyer, items, description):
         fnc = '/api/v2_1/orders'
         data = {
             "notifyUrl": "https://xxx.bcelmer.tk/payu-notification",
-            "customerIp": "51.77.245.145",
-            "extOrderId": order_id,
+            "customerIp": "51.77.245.145",# Fake IP
+            "extOrderId": internal_id,
+            "continueUrl": 'http://127.0.0.1:8000/order/{}'.format(internal_id),
             "merchantPosId": _PAYUDATA['pos_id'],
             "description": description,
             "currencyCode": "PLN",
@@ -60,4 +71,8 @@ class PayUHelper:
                 } for p in items
             ]
         }
-        return self._rest_json_call(fnc,data)
+        return self._rest_json_post(fnc,data)
+
+    def orderData(self,order_id):
+        fnc = '/api/v2_1/orders/{}'.format(order_id)
+        return self._rest_json_get(fnc)

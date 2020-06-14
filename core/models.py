@@ -62,13 +62,17 @@ class Order(models.Model):
     def request_paymaent(self):
         payuHelper = PayUHelper()
         result = payuHelper.newOrder(self.id, self.user, self.orderitem_set.all(),"Order {}".format(self.id))
-        if result['status']['statusCode'] == 'SUCCESS':
-            self.payu_id = result['order_id']
+        result_json = result.json()
+        if result_json['status']['statusCode'] == 'SUCCESS':
+            self.payu_id = result_json['orderId']
             self.payment_status = 'WAITING'
             self.save()
-            return result
+            return result_json
         else:
             raise Exception('Nie udało się utworzyć zamównia: {}'.format(result))
+    def switch_to_success(self):
+        self.payment_status = 'SUCCESS'
+        self.save()
 
 class OrderItem(models.Model):
     order    = models.ForeignKey(Order,on_delete=models.CASCADE)

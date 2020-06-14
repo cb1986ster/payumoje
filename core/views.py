@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
 from .models import Cart, Product, Order, OrderItem, CartItem
+
+import json
 
 def home(request):
     return render(request,'core/home.html', {
@@ -63,16 +65,51 @@ def chceckoutConfirm(request):
     try:
         payment_request = order.request_paymaent()
     except Exception as e:
+
         return render(request,'core/error.html', { 'error': 'Nie udało się wyciągnąć ręki po płatność({}): {}'.format(type(e),e) })
 
-    return redirect(payment_request.redirectUri)
+    return redirect(payment_request['redirectUri'])
 
+def orderStatus(request,order_id):
+    order = Order.objects.get(pk=order_id)
+    return render(request,'core/order-view.html',{'order':order})
 
+from .helpers import PayUHelper
+def orderStatusData(request,order_id):
+    order = Order.objects.get(pk=order_id)
+    # Prośba o podanie statusu
+    if order.payment_status != 'SUCCESS':
+        try:
+            payUHelper = PayUHelper()
+            details = payUHelper.orderData(order.payu_id).json()
+            if details['orders'][0]['status'] == 'COMPLETED':
+                order.switch_to_success()
+        except Exception as e:
+            pass
+
+    return JsonResponse({
+        'id':order.id,
+        'payment_status':order.payment_status,
+    })
+
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
 def payuNotification(request):
     try:
-        raise Exception('NOT_IMPLEMENTED')
+        data = json.loads(request.body)
+        if data['order']['status'] == 'COMPLETED':
+            # TODO: dodać weryfikację płatności !!!
+            order = Order.objects.get(id=data['order']['extOrderId'])
+            order.switch_to_success()
         return HttpResponse('Success!')
     except Exception as e:
         resp = HttpResponse('Error: {}'.format(e))
         resp.status_code = 500
         return resp
+
+'''
+PENDING 	Płatność jest w trakcie rozliczenia.
+WAITING_FOR_CONFIRMATION 	system PayU oczekuje na akcje ze strony sprzedawcy w celu wykonania płatności. Ten status występuje w przypadku gdy auto-odbiór na POSie sprzedawcy jest wyłączony.
+COMPLETED 	Płatność została zaakceptowana w całości. Środki są dostępne do wypłaty.
+CANCELED 	Płatność została anulowana. Płacący nie został obciążony (nie nastąpił przepływ środków między płacącym a Payu).
+'''

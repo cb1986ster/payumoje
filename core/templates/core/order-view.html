@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3 style="text-align: center;">
+        Szczegóły zamównia:
+    </h3>
+    <hr/>
+    <div>
+        Status płatności: <span id="payment"><i>ładowanie</i></span>
+    </div>
+    <script>
+        function updatePaymentStatus(){
+            var status = document.querySelector('#payment');
+            status.innerHTML = '<i>ładowanie...</i>';
+            fetch('/order-status/{{ order.id }}')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if(data.payment_status == 'WAITING'){
+                    status.innerHTML = 'Oczekuje...';
+                    setTimeout(updatePaymentStatus,3000);
+                }else if (data.payment_status == 'SUCCESS') {
+                    status.innerHTML = 'Zakończona! Dziękujemy!';
+                }else if (data.payment_status == 'ERR') {
+                    status.innerHTML = 'Błąd płatności';
+                }else {
+                    status.innerHTML = 'Błąd sprawdzania statusu';
+                    setTimeout(updatePaymentStatus,3000);
+                }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+          });
+        }
+        setTimeout(updatePaymentStatus,500);
+    </script>
+{% endblock %}

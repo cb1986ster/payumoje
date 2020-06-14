@@ -24,5 +24,7 @@ urlpatterns = [
     path('add-to-cart', coreVievs.addToCart, name="add-to-cart"),
     path('remove-from-cart', coreVievs.removeFromCart, name="remove-from-cart"),
     path('chceckout', coreVievs.chceckout, name="chceckout"),
-    path('chceckout-confirm', coreVievs.chceckoutConfirm, name="chceckout-confirm")
+    path('chceckout-confirm', coreVievs.chceckoutConfirm, name="chceckout-confirm"),
+    path('order/<order_id>',coreVievs.orderStatus),
+    path('order-status/<order_id>',coreVievs.orderStatusData)
 ]
