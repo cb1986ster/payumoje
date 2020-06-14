@@ -1,0 +1,20 @@
+body {
+    background-attachment: fixed;
+    background-position: right bottom;
+    background-repeat: no-repeat;
+    color: rgb(62, 62, 60);
+    text-align: center;
+    padding-top: 4em;
+}
+#content {
+    text-align: left;
+}
+nav .navbar-brand img {
+    max-height: 1.3em;
+}
+footer {
+    font-variant: small-caps;
+    font-style: italic;
+    color: rgba(0,0,0,0.4);
+    text-align: right;
+}

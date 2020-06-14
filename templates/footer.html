@@ -1,0 +1,12 @@
+<div id="footer" class="container">
+  <hr />
+  <footer>
+  {% block footer %}
+    {% if request.user.is_authenticated %}
+        Hi <b>{{ request.user.username }}</b> (<a href="/admin/logout">Logout</a>)
+    {% else %}
+        <a href="/admin/login">Login</a>
+    {% endif %}
+  {% endblock %}
+  </footer>
+</div>

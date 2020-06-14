@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3 style="text-align: center;">
+        <i>Django Sklep to najlepsze miejsce na zakupy w całym Internecie, żadnych tam tanich obrazków jedo sam towar! Do wyboru, do koloru!</i>
+    </h3>
+    <hr/>
+    <div class="row">
+        <div class="col-6">
+            Produkty sklepie(bez ograniczenia ilości):<hr/>
+            {% for p in products %}
+                <form method="post" action="/add-to-cart">
+                    {% csrf_token %}
+                    <span style="width: 280px; display: inline-block;">{{ p.name }}</span>
+                    <input type="hidden" name="pid" value="{{p.id}}" />
+                    <input style="border:0px; width: 50px;" type="number" name="quantity" min="1" value="1" placeholder="ilość" />
+                    <input class="btn btn-success" type="submit" value="Dodaj" />
+                </form>
+            {% endfor %}
+        </div>
+        <div class="col-6">
+            W koszyku:<hr/>
+            {% for p in cart.cartitem_set.all %}
+                <form method="post" action="/remove-from-cart">
+                    {% csrf_token %}
+                    <span style="width: 280px; display: inline-block;">{{ p}}</span>
+                    <input type="hidden" name="pid" value="{{p.product.id}}" />
+                    <input class="btn btn-danger" type="submit" value="Usuń" />
+                </form>
+                {% if forloop.last %}
+                    <hr/>
+                    <a href="/chceckout" class="btn btn-primary">Do kasy &gt;&gt;&gt;</a>
+                {% endif %}
+            {% empty %}
+                Nie wachaj się, dodaj coś!
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

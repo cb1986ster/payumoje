@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    W koszyku:
+    <hr/>
+    {% for p in cart.cartitem_set.all %}
+        <div class="row">
+            <div class="col-10">
+                {{ p.product.name }}
+            </div>
+            <div class="col-2">
+                ilość: {{ p.quantity }}
+            </div>
+        </div>
+    {% empty %}
+        Nie wachaj się, dodaj coś!
+    {% endfor %}
+    <hr />
+    <a href="/" class="btn btn-secondary">&lt;&lt;&lt; Wróć do zakupów</a> <a href="/chceckout-confirm" class="btn btn-primary">Do płatności &gt;&gt;&gt;</a>
+{% endblock %}
