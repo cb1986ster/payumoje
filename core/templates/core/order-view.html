@@ -15,7 +15,6 @@
             fetch('/order-status/{{ order.id }}')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 if(data.payment_status == 'WAITING'){
                     status.innerHTML = 'Oczekuje...';
                     setTimeout(updatePaymentStatus,3000);

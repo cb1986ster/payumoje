@@ -30,8 +30,8 @@ class Cart(models.Model):
         for item in self.cartitem_set.all():
             if product_id == item.product.id:
                 item.delete()
+                return True
         return False
-
     def convert_to_order(self):
         order = Order.objects.create(
             user = self.user,
@@ -46,9 +46,8 @@ class Cart(models.Model):
         self.delete()
         return order
 
-
 class CartItem(models.Model):
-    cart     =  models.ForeignKey(Cart,on_delete=models.CASCADE)
+    cart     = models.ForeignKey(Cart,on_delete=models.CASCADE)
     product  = models.ForeignKey(Product,on_delete=models.CASCADE)
     quantity = models.IntegerField()
     def __str__(self): return "{} (x{})".format(self.product,self.quantity)

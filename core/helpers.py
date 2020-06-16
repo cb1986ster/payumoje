@@ -9,10 +9,9 @@ _PAYUDATA = {
 
 
 class PayUHelper:
-
     snd = 'https://secure.snd.payu.com'
     prod= 'https://secure.payu.com'
-    in_sandbox = 'snd'
+    in_sandbox = True
     _access_token = None
     def get_auth(self, force=False):
         if not PayUHelper._access_token or force:
@@ -53,7 +52,7 @@ class PayUHelper:
             "merchantPosId": _PAYUDATA['pos_id'],
             "description": description,
             "currencyCode": "PLN",
-            "totalAmount": round(sum([p.product.price for p in items])*100),
+            "totalAmount": round(sum([p.product.price for p in items])*100*p.quantity),
             "buyer": {
                 "email": buyer.email,
                 "firstName": buyer.first_name if len(buyer.first_name) else 'Nie podano',
@@ -66,7 +65,7 @@ class PayUHelper:
             "products": [
                 {
                     "name": p.product.name,
-                    "unitPrice": round(p.product.price*100),
+                    "unitPrice": round(p.product.price*100*p.quantity),
                     "quantity": p.quantity
                 } for p in items
             ]

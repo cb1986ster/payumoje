@@ -77,8 +77,7 @@ def orderStatus(request,order_id):
 from .helpers import PayUHelper
 def orderStatusData(request,order_id):
     order = Order.objects.get(pk=order_id)
-    # Prośba o podanie statusu
-    if order.payment_status != 'SUCCESS':
+    if order.payment_status != 'SUCCESS' and order.payment_status != 'ERR':
         try:
             payUHelper = PayUHelper()
             details = payUHelper.orderData(order.payu_id).json()
