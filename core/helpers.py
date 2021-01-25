@@ -52,7 +52,7 @@ class PayUHelper:
             "merchantPosId": _PAYUDATA['pos_id'],
             "description": description,
             "currencyCode": "PLN",
-            "totalAmount": round(sum([p.product.price for p in items])*100*p.quantity),
+            "totalAmount": round(sum([p.product.price*p.quantity for p in items])*100),
             "buyer": {
                 "email": buyer.email,
                 "firstName": buyer.first_name if len(buyer.first_name) else 'Nie podano',
